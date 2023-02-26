@@ -1,7 +1,7 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
-  <ConvertArea v-bind:rates="rates"/>
-  <TabloidArea v-bind:rates="rates"/>
+  <ConvertArea v-bind:rates="rates" />
+  <TabloidArea v-bind:rates="rates" v-on:getRates="getRates()"/>
 </template>
 
 <script>
@@ -10,6 +10,7 @@ import TabloidArea from "@/components/Tabloid";
 
 export default {
   name: 'App',
+  emits: ['getRates'],
   components: {
     ConvertArea,
     TabloidArea,
