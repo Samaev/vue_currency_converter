@@ -1,6 +1,7 @@
 {
   "name": "vue_currency_converter",
   "version": "0.1.0",
+  "homepage": "/vue_currency_converter/",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
