@@ -3,5 +3,5 @@ module.exports = defineConfig({
   transpileDependencies: true
 })
 module.exports = {
-  publicPath: '/currency-exchange/'
+  publicPath: 'vue_currency_converter'
 }
