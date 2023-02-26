@@ -18,7 +18,7 @@
         {{ currency1 }} {{ rate1 }} have been converted to {{ currency2 }} {{ rate2 }}
       </div>
     </div>
-    <p v-if="limitAmountError">Ups</p>
+    <p v-if="limitAmountError">Our rules allow exchanging the equivalent of a maximum of $10,000 per session. Please try to revise the amount downward and enter again </p>
   </div>
 </template>
 
@@ -26,6 +26,7 @@
 export default {
   name: 'ConvertArea',
   props: {
+    rates: Object,
   },
   data: function(){
     return {
@@ -40,7 +41,6 @@ export default {
       ],
       currency1: 10000,
       currency2: 1,
-      rates: {},
       rate1: 'USD',
       rate2: 'BTC',
       limitAmountError: false,
@@ -49,26 +49,14 @@ export default {
 
     },
   methods: {
-    getRates: function() {
-      let that = this;
-      const requestURL = 'https://api.currencyfreaks.com/latest?apikey=864b5a1dc98f4d0d94e5ea87ad2c1e0e';
-      const request = new XMLHttpRequest();
-      request.open('GET', requestURL);
-      request.responseType = 'json';
-      request.send();
 
-      request.onload = function() {
-        const response = request.response;
-        that.rates = response.rates;
-        that.setCurrency2();
-      };
-    },
     setCurrency1: function() {
+      this.limitAmountError = false;
       if(this.currency2 / 10000 > this.rates[this.rate2]) {
         this.limitAmountError = true;
         this.currency2 = Math.round(10000 * this.rates[this.rate2]*100)/100;
       }
-      if (this.rate1 != 'BTC') {
+      if (this.rates[this.rate1] < 1) {
         this.currency1 = Math.round(this.currency2 * this.rates[this.rate1] * (1/this.rates[this.rate2])*100)/100;
       } else {
         this.currency1 = Math.round(this.currency2 * this.rates[this.rate1] * (1/this.rates[this.rate2])*1000000)/1000000;
@@ -76,15 +64,20 @@ export default {
 
     },
     setCurrency2: function() {
-      if (this.rate2 != 'BTC') {
+      this.limitAmountError = false;
+      if(this.currency1 / 10000 > this.rates[this.rate1]) {
+        this.limitAmountError = true;
+        this.currency1 = Math.round(10000 * this.rates[this.rate1]*100)/100;
+      }
+      if (this.rates[this.rate2] < 1) {
         this.currency2 = Math.round(this.currency1 * (1/this.rates[this.rate1]) * this.rates[this.rate2]*100)/100;
       } else {
         this.currency2 = Math.round(this.currency1 * this.rates[this.rate2] * (1/this.rates[this.rate1])*1000000)/1000000;
-    }
+      }
     }
   },
   mounted() {
-    this.getRates();
+    setTimeout(()=>this.setCurrency2(),1500);
   }
 }
 </script>
