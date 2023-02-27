@@ -1,19 +1,43 @@
 <template>
-  Tabloid will be there
-  <div>
-    <button v-for="(ticket, index) in tickets" v-bind:key="index" v-on:click="setTabloid(ticket)">{{ ticket }}</button>
-  </div>
-  <div>
+<div class="card m-auto mb-5" style="width: 18rem;">
+  <div class="card-header">
     <h4>Currency tabloid</h4>
-    <div v-for="(currency,index) in currencies" v-bind:key="index">{{ currency }} - {{ setCurrency(currency) }}</div>
-    <button v-on:click="showPopup = true">Add currency</button>
   </div>
-  <button v-on:click="refreshRates" v-if="counter === 5">Refresh</button>
-  <p v-if="counter !== 5"> Currencies can be updated in {{ counter }} seconds. Please wait</p>
-  <div v-if="showPopup" class="popup">
-    <div class="popup-button">
-      <input type="text" v-model="searchTerm" placeholder="Enter the ticker">
-      <select v-if="searchTerm.length > 0" multiple v-on:click="currencies.push(selectedTicket[0])" v-model="selectedTicket">
+
+  <div>
+    <button class="btn btn-outline-primary m-2" v-for="(ticket, index) in tickets" v-bind:key="index" v-on:click="setTabloid(ticket)">{{ ticket }}</button>
+  </div>
+  <div>
+
+    <div class="list-group">
+      <div v-for="(currency,index) in currencies" v-bind:key="index" class="list-group-item list-group-item-info m-1">
+        <span>{{ currency }}</span>
+        <span>&#8594;</span>
+        <span>{{ setCurrency(currency) }}</span></div>
+    </div>
+    <div v-if="errorAdding">
+      <div class="spinner-grow text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      It was already in a list.
+      <div class="spinner-grow text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+    <button class="btn btn-primary m-2" v-on:click="showPopup = true">Add currency</button>
+  </div>
+  <div><button class="btn btn-primary m-2" v-on:click="refreshRates" v-if="counter === 5">Refresh</button></div>
+  <div v-if="counter !== 5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Currencies can be updated in {{ counter }} seconds. Please wait</p>
+  </div>
+  <div v-if="showPopup" class="popup p-5">
+    <div class="card popup-button">
+      <div class="card-title ">Add new currency</div>
+      <input class="form-control m-2" type="text" v-model="searchTerm" placeholder="Enter the ticker">
+      <select class="form-select multiple m-2" v-if="searchTerm.length > 0" multiple v-on:click="addCurrency" v-model="selectedTicket">
         <option
             v-for="(ticket,index) in arrayRates.filter(tick=>tick[0].toLowerCase().includes(searchTerm))"
             v-bind:key="index"
@@ -22,9 +46,10 @@
           {{ ticket[0] }}
         </option>
       </select>
-      <button v-on:click="showPopup=false">Close</button>
+      <button class="btn btn-primary m-2" v-on:click="showPopup=false">Close</button>
     </div>
   </div>
+</div>
 </template>
 
 <script>
@@ -44,6 +69,7 @@ export default {
       arrayRates: [],
       refreshButton: true,
       counter: 5,
+      errorAdding: false,
     }
   },
   name: "TabloidArea",
@@ -70,6 +96,20 @@ export default {
         }
       }, 1000)
     },
+    addCurrency: function(){
+      if (this.currencies.includes(this.selectedTicket[0])) {
+        this.showPopup = false;
+        this.errorAdding = true;
+        setTimeout(()=>{
+          this.errorAdding = false
+        }, 2500)
+
+        return;
+      } else {
+        this.currencies.push(this.selectedTicket[0])
+      }
+        this.showPopup = false;
+    }
   },
   mounted() {
     setTimeout(()=>this.setRatesToArray(),1000);
@@ -106,10 +146,9 @@ export default {
   .popup-button {
     padding: 20px;
     position: absolute;
-    height: 200px;
+    height: max-content;
     width: 400px;
     border-radius: 15px;
-    background-color: aquamarine;
     z-index:2;
   }
 </style>
